@@ -15,6 +15,29 @@ services:
     ports:
       - "6379:6379"
 
+  discount.db:
+    container_name: discount.db
+    restart: always
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin1234
+      - POSTGRES_DB=DiscountDb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+  pgadmin:
+    container_name: pgadmin
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@aspnetrun.com
+      - PGADMIN_DEFAULT_PASSWORD=admin1234
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/root/.pgadmin
+
   portainer:
     container_name: portainer
     restart: always
@@ -25,8 +48,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
 
-  mongo.client:
-    container_name: mongo.client
+  mongoclient:
+    container_name: mongoclient
     restart: always
     ports:
       - "3000:3000"
@@ -51,3 +74,12 @@ services:
     ports:
       - "8001:80"
 
+  discount.api:
+    container_name: discount.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "DatabaseSettings:ConnectionString=Server=discount.db;Port=5432;Database=DiscountDb;User Id=admin;Password=admin1234;"
+    depends_on:
+      - discount.db
+    ports:
+      - "8002:80"
